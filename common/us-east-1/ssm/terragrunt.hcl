@@ -8,7 +8,7 @@ terraform {
 }
 
 dependency "vpc" {
-  config_path                             = "../../vpc"
+  config_path                             = "../vpc"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
   mock_outputs = {
     vpc_id = "vpc-12345678"
@@ -41,7 +41,7 @@ dependency "vpc" {
 }
 
 dependency "route53_zones" {
-  config_path                             = "../../../global/route53/zones"
+  config_path                             = "../../global/route53/zones"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
   mock_outputs = {
     route53_zone_zone_id = {
@@ -50,14 +50,22 @@ dependency "route53_zones" {
   }
 }
 
+dependency "ecs_cluster_fargate" {
+  config_path                             = "../ecs-cluster-fargate"
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
+  mock_outputs = {
+    cluster_arn = "arn:aws:ecs:us-east-1:123456789012:cluster/ecs-cluster"
+  }
+}
+
 locals {
-  region = include.root.locals.aws_region
+  name_prefix = include.root.inputs.name_prefix
 }
 
 inputs = {
   parameter_write = [
     {
-      name = "/${local.region}/infra/network"
+      name = "/${local.name_prefix}/shared/infrastructure"
       value = jsonencode({
         vpc_id              = dependency.vpc.outputs.vpc_id
         public_subnets      = dependency.vpc.outputs.public_subnets
@@ -66,10 +74,11 @@ inputs = {
         elasticache_subnets = dependency.vpc.outputs.elasticache_subnets
         intra_subnets       = dependency.vpc.outputs.intra_subnets,
         hosted_zone_id      = dependency.route53_zones.outputs.route53_zone_zone_id.public
+        ecs_cluster_arn     = dependency.ecs_cluster_fargate.outputs.cluster_arn
       })
       type        = "String"
       overwrite   = "true"
-      description = "Network configuration"
+      description = "Shared infrastructure configuration"
     }
   ]
 }

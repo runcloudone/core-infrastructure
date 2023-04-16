@@ -8,10 +8,9 @@ terraform {
 }
 
 locals {
-  name_prefix  = include.root.inputs.name_prefix
-  account_name = include.root.inputs.account_name
-  region       = include.root.inputs.aws_region
-  name         = "${local.name_prefix}-${local.account_name}-${basename(get_terragrunt_dir())}"
+  name_prefix = include.root.inputs.name_prefix
+  region      = include.root.inputs.aws_region
+  name        = "${local.name_prefix}-${basename(get_terragrunt_dir())}"
 }
 
 inputs = {
