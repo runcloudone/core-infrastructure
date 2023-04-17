@@ -8,14 +8,14 @@ terraform {
 }
 
 locals {
-  name_prefix = include.root.inputs.name_prefix
-  account_id  = include.root.inputs.account_id
-  region      = include.root.inputs.aws_region
-  name        = "${local.name_prefix}-${local.region}-shared-key"
+  prefix     = include.root.inputs.prefix
+  account_id = include.root.inputs.account_id
+  region     = include.root.inputs.aws_region
+  name       = "${local.prefix}-${basename(get_terragrunt_dir())}-key"
 }
 
 inputs = {
-  description = "Shared KMS key for ${local.region} region"
+  description = "Common KMS key for ${local.region} region"
   aliases     = [local.name]
 
   # Key policy

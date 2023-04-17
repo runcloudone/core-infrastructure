@@ -7,8 +7,8 @@ terraform {
   source = "git::git@github.com:cloudposse/terraform-aws-ssm-parameter-store.git//.?ref=0.10.0"
 }
 
-dependency "vpc" {
-  config_path                             = "../vpc"
+dependency "vpc_main" {
+  config_path                             = "../vpc/main"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
   mock_outputs = {
     vpc_id = "vpc-12345678"
@@ -59,20 +59,20 @@ dependency "ecs_cluster_fargate" {
 }
 
 locals {
-  name_prefix = include.root.inputs.name_prefix
+  prefix = include.root.inputs.prefix
 }
 
 inputs = {
   parameter_write = [
     {
-      name = "/${local.name_prefix}/shared/infrastructure"
+      name = "/${local.prefix}/shared/infrastructure"
       value = jsonencode({
-        vpc_id              = dependency.vpc.outputs.vpc_id
-        public_subnets      = dependency.vpc.outputs.public_subnets
-        private_subnets     = dependency.vpc.outputs.private_subnets
-        database_subnets    = dependency.vpc.outputs.database_subnets
-        elasticache_subnets = dependency.vpc.outputs.elasticache_subnets
-        intra_subnets       = dependency.vpc.outputs.intra_subnets,
+        vpc_id              = dependency.vpc_main.outputs.vpc_id
+        public_subnets      = dependency.vpc_main.outputs.public_subnets
+        private_subnets     = dependency.vpc_main.outputs.private_subnets
+        database_subnets    = dependency.vpc_main.outputs.database_subnets
+        elasticache_subnets = dependency.vpc_main.outputs.elasticache_subnets
+        intra_subnets       = dependency.vpc_main.outputs.intra_subnets,
         hosted_zone_id      = dependency.route53_zones.outputs.route53_zone_zone_id.public
         ecs_cluster_arn     = dependency.ecs_cluster_fargate.outputs.cluster_arn
       })

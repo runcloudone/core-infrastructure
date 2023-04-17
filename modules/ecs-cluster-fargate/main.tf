@@ -42,13 +42,13 @@ module "ecs" {
 }
 
 resource "aws_cloudwatch_log_group" "ecs_execute_command" {
-  name              = "/aws/ecs/${var.cluster_name}"
+  name              = "/aws/ecs/${var.cluster_name}/execute-command"
   retention_in_days = var.ecs_log_retention_days
   kms_key_id        = var.kms_key_arn
 
   tags = merge(
     {
-      Name = var.cluster_name
+      Name = "${var.cluster_name}-log-group"
     },
     var.tags
   )

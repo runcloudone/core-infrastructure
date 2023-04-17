@@ -3,7 +3,7 @@ locals {
   account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl", "${get_terragrunt_dir()}/account.hcl"))
   region_vars  = read_terragrunt_config(find_in_parent_folders("region.hcl", "${get_terragrunt_dir()}/region.hcl"))
 
-  name_prefix    = local.common_vars.locals.name_prefix
+  prefix         = local.common_vars.locals.prefix
   default_region = local.common_vars.locals.default_region
   account_id     = local.account_vars.locals.account_id
   account_name   = local.account_vars.locals.account_name
@@ -37,16 +37,16 @@ remote_state {
   }
   config = {
     encrypt                 = true
-    bucket                  = lower("${local.name_prefix}-${local.account_name}-${local.aws_region}-terraform-state")
+    bucket                  = lower("${local.prefix}-${local.account_name}-${local.aws_region}-terraform-state")
     key                     = "${path_relative_to_include()}/terraform.tfstate"
     region                  = local.default_region
-    dynamodb_table          = lower("${local.name_prefix}-${local.account_name}-terraform-state-locks")
+    dynamodb_table          = lower("${local.prefix}-${local.account_name}-terraform-state-locks")
     skip_bucket_root_access = true
   }
 }
 
 inputs = {
-  name_prefix  = local.name_prefix
+  prefix       = local.prefix
   account_name = local.account_name
   account_id   = local.account_id
   aws_region   = local.aws_region

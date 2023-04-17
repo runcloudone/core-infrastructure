@@ -1,4 +1,4 @@
 locals {
-  name_prefix    = "runcloudone"
+  prefix         = "runcloudone"
   default_region = "us-east-1"
 }
