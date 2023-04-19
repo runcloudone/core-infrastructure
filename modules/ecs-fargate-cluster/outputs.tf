@@ -17,3 +17,13 @@ output "cluster_capacity_providers" {
   description = "Map of cluster capacity providers attributes"
   value       = module.ecs.cluster_capacity_providers
 }
+
+output "cloudmap_namespace_id" {
+  description = "ID that identifies the CloudMap namespace"
+  value       = aws_service_discovery_private_dns_namespace.ecs.id
+}
+
+output "cloudmap_namespace_name" {
+  description = "Name that identifies the CloudMap namespace"
+  value = var.private_dns_namespace
+}

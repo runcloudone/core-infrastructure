@@ -14,14 +14,10 @@ dependency "common_kms_key" {
   }
 }
 
-locals {
-  jenkins_controller_repository_name = "jenkins-controller-ecs"
-}
-
 inputs = {
   items = {
-    jenkins_controller_ecs = {
-      repository_name                 = local.jenkins_controller_repository_name
+    jenkins_controller = {
+      repository_name                 = "jenkins-controller"
       repository_image_tag_mutability = "MUTABLE"
 
       repository_encryption_type = "KMS"
@@ -45,10 +41,6 @@ inputs = {
           }
         ]
       })
-
-      tags = {
-        Name = local.jenkins_controller_repository_name
-      }
     }
   }
 }

@@ -8,10 +8,9 @@ terraform {
 }
 
 locals {
-  prefix     = include.root.inputs.prefix
   account_id = include.root.inputs.account_id
   region     = include.root.inputs.aws_region
-  name       = "${local.prefix}-${basename(get_terragrunt_dir())}-key"
+  name       = "${basename(get_terragrunt_dir())}-kms-key"
 }
 
 inputs = {
@@ -21,7 +20,7 @@ inputs = {
   # Key policy
   key_statements = [
     {
-      sid = "AllowCloudWatchToEncryptLogs"
+      sid = "AllowLogEncryption"
       actions = [
         "kms:Encrypt*",
         "kms:Decrypt*",
@@ -49,8 +48,4 @@ inputs = {
       ]
     }
   ]
-
-  tags = {
-    Name = local.name
-  }
 }

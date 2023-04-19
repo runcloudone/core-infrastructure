@@ -1,6 +1,5 @@
 include "root" {
-  path   = find_in_parent_folders()
-  expose = true
+  path = find_in_parent_folders()
 }
 
 terraform {
@@ -8,8 +7,7 @@ terraform {
 }
 
 locals {
-  prefix = include.root.inputs.prefix
-  name   = "${local.prefix}-${basename(get_terragrunt_dir())}-sg"
+  name = "${basename(get_terragrunt_dir())}-sg"
 }
 
 dependency "vpc_main" {

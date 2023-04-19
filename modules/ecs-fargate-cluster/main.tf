@@ -6,11 +6,10 @@ module "ecs" {
 
   cluster_configuration = {
     execute_command_configuration = {
-      kms_key_id = var.kms_key_arn
-      logging    = "OVERRIDE"
+      logging = "OVERRIDE"
       log_configuration = {
         cloud_watch_encryption_enabled = true
-        cloud_watch_log_group_name     = aws_cloudwatch_log_group.ecs_execute_command.name
+        cloud_watch_log_group_name     = aws_cloudwatch_log_group.execute_command.name
       }
     }
   }
@@ -33,23 +32,21 @@ module "ecs" {
     value = "enabled"
   }
 
-  tags = merge(
-    {
-      Name = var.cluster_name
-    },
-    var.tags
-  )
+  tags = var.tags
 }
 
-resource "aws_cloudwatch_log_group" "ecs_execute_command" {
+resource "aws_service_discovery_private_dns_namespace" "ecs" {
+  name        = var.private_dns_namespace
+  vpc         = var.vpc_id
+  description = "Service Discovery namespace for ${var.cluster_name}"
+
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_log_group" "execute_command" {
   name              = "/aws/ecs/${var.cluster_name}/execute-command"
   retention_in_days = var.ecs_log_retention_days
-  kms_key_id        = var.kms_key_arn
+  kms_key_id        = var.log_group_kms_key_arn
 
-  tags = merge(
-    {
-      Name = "${var.cluster_name}-log-group"
-    },
-    var.tags
-  )
+  tags = var.tags
 }

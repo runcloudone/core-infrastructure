@@ -1,6 +1,5 @@
 include "root" {
-  path   = find_in_parent_folders()
-  expose = true
+  path = find_in_parent_folders()
 }
 
 terraform {
@@ -44,28 +43,28 @@ dependency "route53_zones" {
   config_path                             = "../../global/route53/zones"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
   mock_outputs = {
+    route53_zone_name = {
+      public = "example.com"
+    }
     route53_zone_zone_id = {
       public = "Z3P5QSUBK4POTI"
     }
   }
 }
 
-dependency "ecs_cluster_fargate" {
-  config_path                             = "../ecs-cluster-fargate"
+dependency "ecs_main" {
+  config_path                             = "../ecs/main"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
   mock_outputs = {
-    cluster_arn = "arn:aws:ecs:us-east-1:123456789012:cluster/ecs-cluster"
+    cluster_arn  = "arn:aws:ecs:us-east-1:123456789012:cluster/ecs-cluster"
+    cluster_name = "ecs-cluster"
   }
-}
-
-locals {
-  prefix = include.root.inputs.prefix
 }
 
 inputs = {
   parameter_write = [
     {
-      name = "/${local.prefix}/shared/infrastructure"
+      name = "/shared/infrastructure"
       value = jsonencode({
         vpc_id              = dependency.vpc_main.outputs.vpc_id
         public_subnets      = dependency.vpc_main.outputs.public_subnets
@@ -73,8 +72,10 @@ inputs = {
         database_subnets    = dependency.vpc_main.outputs.database_subnets
         elasticache_subnets = dependency.vpc_main.outputs.elasticache_subnets
         intra_subnets       = dependency.vpc_main.outputs.intra_subnets,
+        root_domain         = dependency.route53_zones.outputs.route53_zone_name.public
         hosted_zone_id      = dependency.route53_zones.outputs.route53_zone_zone_id.public
-        ecs_cluster_arn     = dependency.ecs_cluster_fargate.outputs.cluster_arn
+        ecs_cluster_arn     = dependency.ecs_main.outputs.cluster_arn
+        ecs_cluster_name    = dependency.ecs_main.outputs.cluster_name
       })
       type        = "String"
       overwrite   = "true"

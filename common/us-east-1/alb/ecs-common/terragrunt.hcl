@@ -1,23 +1,17 @@
 include "root" {
-  path   = find_in_parent_folders()
-  expose = true
+  path = find_in_parent_folders()
 }
 
 terraform {
   source = "tfr:///terraform-aws-modules/alb/aws//.?version=8.6.0"
 }
 
-locals {
-  prefix = include.root.inputs.prefix
-  name   = "${local.prefix}-${basename(get_terragrunt_dir())}-alb"
-}
-
-dependency "acm_common" {
-  config_path                             = "../../acm/common"
+dependency "acm_certificates" {
+  config_path                             = "../../acm-certificates"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "terragrunt-info", "show"]
   mock_outputs = {
     wrapper = {
-      runcloudone_common = {
+      common = {
         acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012"
       }
     }
@@ -45,6 +39,10 @@ dependency "http_https_common_sg" {
   }
 }
 
+locals {
+  name = "${basename(get_terragrunt_dir())}-alb"
+}
+
 inputs = {
   name = local.name
 
@@ -59,8 +57,8 @@ inputs = {
     {
       port            = 443
       protocol        = "HTTPS"
-      ssl_policy      = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
-      certificate_arn = dependency.acm_common.outputs.wrapper.runcloudone_common.acm_certificate_arn
+      ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+      certificate_arn = dependency.acm_certificates.outputs.wrapper.common.acm_certificate_arn
       action_type     = "fixed-response"
       fixed_response = {
         content_type = "text/plain"
@@ -82,8 +80,4 @@ inputs = {
       }
     }
   ]
-
-  tags = {
-    Name = local.name
-  }
 }

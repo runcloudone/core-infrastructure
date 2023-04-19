@@ -8,9 +8,8 @@ terraform {
 }
 
 locals {
-  prefix = include.root.inputs.prefix
   region = include.root.inputs.aws_region
-  name   = "${local.prefix}-${basename(get_terragrunt_dir())}-vpc"
+  name   = "${basename(get_terragrunt_dir())}-vpc"
 }
 
 inputs = {
@@ -27,7 +26,7 @@ inputs = {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  enable_nat_gateway = false
+  enable_nat_gateway = true
   single_nat_gateway = true
 
   manage_default_network_acl = true
